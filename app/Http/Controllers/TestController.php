@@ -12,10 +12,10 @@ use Saleh7\Zatca\{
     InvoiceType, AdditionalDocumentReference, TaxScheme, PartyTaxScheme, Address, LegalEntity, Delivery, 
     Party, TaxCategory, TaxSubTotal, TaxTotal, LegalMonetaryTotal, 
     ClassifiedTaxCategory, Item, Price, InvoiceLine, GeneratorInvoice, Invoice, UnitCode, 
-    Storage, InvoiceSigner, Attachment
+    Storage, InvoiceSigner, Attachment, PaymentMeans, AllowanceCharge
 };
 use Saleh7\Zatca\Helpers\Certificate;
-
+use Saleh7\Zatca\Helpers\InvoiceExtension;
 class TestController extends Controller
 {
     
@@ -80,22 +80,35 @@ class TestController extends Controller
         }
     }
 
-    // Add this to your TestController or a helper class
+    public function getHash(string $xml): string
+    {
+        $xmlDom = InvoiceExtension::fromString($xml);
+
+        $xmlDom->removeByXpath('ext:UBLExtensions');
+        $xmlDom->removeByXpath('cac:Signature');
+        $xmlDom->removeParentByXpath('cac:AdditionalDocumentReference/cbc:ID[. = "QR"]');
+
+        // Compute hash using SHA-256
+        $invoiceHashBinary = hash('sha256', $xmlDom->getElement()->C14N(false, false), true);
+        return base64_encode($invoiceHashBinary);
+    }
+
     public function getPreviousInvoiceData()
     {
-
-        $previousInvoicePath = StorageFacade::path('signed_invoice.xml');
+        
+        $previousInvoicePath = StorageFacade::path('previous_signed_invoice.xml');
 
         if (!StorageFacade::exists($previousInvoicePath)) {
             // First invoice: return empty hash and no UUID
             return [
-                'hash' => hash('sha256', '', true),
+                'hash' => $this->getHash(''),
                 'uuid' => null
             ];
         }
 
         // Parse previous invoice to extract UUID and compute hash
         $previousXml = (new Storage)->get($previousInvoicePath);
+        $previousHash = $this->getHash($previousXml);
         $dom = new \DOMDocument();
         $dom->loadXML($previousXml);
         $xpath = new \DOMXPath($dom);
@@ -103,9 +116,6 @@ class TestController extends Controller
 
         // Extract UUID from previous invoice
         $previousUuid = $xpath->query('//cbc:UUID')->item(0)->nodeValue;
-
-        // Compute hash of previous invoice's XML
-        $previousHash = hash('sha256', $previousXml, true);
 
         return [
             'hash' => $previousHash,
@@ -126,7 +136,7 @@ class TestController extends Controller
             ->setIsSelfBilled(false); // Self-billed invoice
         
         $previousData = $this->getPreviousInvoiceData();
-        $base64PIH = base64_encode($previousData['hash']);
+        $base64PIH = 'NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==';
 
         //  // --- Set PIH Attachment ---
         $pihAttachment = (new Attachment())
@@ -305,6 +315,5 @@ class TestController extends Controller
             $invoiceHash,
             $uuid
         );
-        dd($complianceResult);
     }
 }
