@@ -2,23 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use Saleh7\Zatca\CertificateBuilder;
-use Saleh7\Zatca\Exceptions\CertificateBuilderException;
-use Saleh7\Zatca\ZatcaAPI;
-use Saleh7\Zatca\Exceptions\ZatcaApiException;
+use App\Services\Zatca\CertificateBuilder;
+use App\Services\Zatca\Exceptions\CertificateBuilderException;
+use App\Services\Zatca\ZatcaAPI;
+use App\Services\Zatca\Exceptions\ZatcaApiException;
 use Illuminate\Support\Facades\Storage as StorageFacade;
 use DateTime;
-use Saleh7\Zatca\{
-    InvoiceType, AdditionalDocumentReference, TaxScheme, PartyTaxScheme, Address, LegalEntity, Delivery, 
-    Party, TaxCategory, TaxSubTotal, TaxTotal, LegalMonetaryTotal, 
-    ClassifiedTaxCategory, Item, Price, InvoiceLine, GeneratorInvoice, Invoice, UnitCode, 
-    Storage, InvoiceSigner, Attachment, PaymentMeans, AllowanceCharge
+use App\Services\Zatca\{
+    InvoiceType,
+    AdditionalDocumentReference,
+    TaxScheme,
+    PartyTaxScheme,
+    Address,
+    LegalEntity,
+    Delivery,
+    Party,
+    TaxCategory,
+    TaxSubTotal,
+    TaxTotal,
+    LegalMonetaryTotal,
+    ClassifiedTaxCategory,
+    Item,
+    Price,
+    InvoiceLine,
+    GeneratorInvoice,
+    Invoice,
+    UnitCode,
+    Storage,
+    InvoiceSigner,
+    Attachment,
+    PaymentMeans,
+    AllowanceCharge,
+    SignatureInformation,
+    UBLDocumentSignatures,
+    ExtensionContent,
+    UBLExtension,
+    UBLExtensions,
+    Signature
 };
-use Saleh7\Zatca\Helpers\Certificate;
-use Saleh7\Zatca\Helpers\InvoiceExtension;
+use App\Services\Zatca\Helpers\Certificate;
+use App\Services\Zatca\Helpers\InvoiceExtension;
 class TestController extends Controller
 {
-    
+
     public function getCsr()
     {
         try {
@@ -40,7 +66,7 @@ class TestController extends Controller
                 ->setBusinessCategory('Technology')             // Your business category like food, real estate, etc
                 // Generate and save the certificate and private key
                 ->generateAndSave(StorageFacade::path('certificate.csr'), StorageFacade::path('private.pem'));
-                
+
             echo "Certificate and private key saved.\n";
         } catch (CertificateBuilderException $e) {
             echo "Error: " . $e->getMessage() . "\n";
@@ -57,7 +83,7 @@ class TestController extends Controller
             $certificatePath = StorageFacade::path('certificate.csr');
             $csr = $zatcaClient->loadCSRFromFile($certificatePath);
             $complianceResult = $zatcaClient->requestComplianceCertificate($csr, $otp);
-            
+
             echo "Compliance Certificate:\n" . $complianceResult->getCertificate() . "\n";
             echo "API Secret: " . $complianceResult->getSecret() . "\n";
             echo "Request ID: " . $complianceResult->getRequestId() . "\n";
@@ -70,9 +96,9 @@ class TestController extends Controller
                 $complianceResult->getRequestId(),
                 $outputFile
             );
-            
+
             echo "Certificate data saved to {$outputFile}\n";
-            
+
         } catch (ZatcaApiException $e) {
             echo "API Error: " . $e->getMessage();
         } catch (\Exception $e) {
@@ -95,7 +121,7 @@ class TestController extends Controller
 
     public function getPreviousInvoiceData()
     {
-        
+
         $previousInvoicePath = StorageFacade::path('previous_signed_invoice.xml');
 
         if (!StorageFacade::exists($previousInvoicePath)) {
@@ -124,77 +150,195 @@ class TestController extends Controller
     }
 
     public function getInvoice()
-    {   
+    {
+        $signatureInfo = (new SignatureInformation)
+            ->setReferencedSignatureID("urn:oasis:names:specification:ubl:signature:Invoice")
+            ->setID('urn:oasis:names:specification:ubl:signature:1');
+
+        $ublDocSignatures = (new UBLDocumentSignatures)
+            ->setSignatureInformation($signatureInfo);
+
+        $extensionContent = (new ExtensionContent)
+            ->setUBLDocumentSignatures($ublDocSignatures);
+
+        $ublExtension = (new UBLExtension)
+            ->setExtensionURI('urn:oasis:names:specification:ubl:dsig:enveloped:xades')
+            ->setExtensionContent($extensionContent);
+
+        // Default UBL Extensions Default
+        $ublExtensions = (new UBLExtensions)
+            ->setUBLExtensions([$ublExtension]);
+
+        // --- Signature Default ---
+        $signature = (new Signature)
+            ->setId("urn:oasis:names:specification:ubl:signature:Invoice")
+            ->setSignatureMethod("urn:oasis:names:specification:ubl:dsig:enveloped:xades");
+
         // --- Invoice Type ---
         $invoiceType = (new InvoiceType())
-            ->setInvoice('standard') // 'standard' or 'simplified'
+            ->setInvoice('simplified') // 'standard' or 'simplified'
             ->setInvoiceType('invoice') // 'invoice', 'debit', or 'credit', 'prepayment'
             ->setIsThirdParty(false) // Third-party transaction
             ->setIsNominal(false) // Nominal transaction
             ->setIsExportInvoice(false) // Export invoice
             ->setIsSummary(false) // Summary invoice
             ->setIsSelfBilled(false); // Self-billed invoice
-        
-        $previousData = $this->getPreviousInvoiceData();
-        $base64PIH = 'NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==';
 
-        //  // --- Set PIH Attachment ---
-        $pihAttachment = (new Attachment())
-            ->setBase64Content($base64PIH, 'base64', 'text/plain');
+        // add Attachment
+        $attachment = (new Attachment())
+            ->setBase64Content(
+                'NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ==',
+                'base64',
+                'text/plain'
+            );
 
-        // --- Supplier & Customer Information ---
-        $taxScheme = (new TaxScheme())->setId("VAT");
-        
-        $partyTaxSchemeSupplier = (new PartyTaxScheme())->setTaxScheme($taxScheme)->setCompanyId('311111111101113');
-        $partyTaxSchemeCustomer = (new PartyTaxScheme())->setTaxScheme($taxScheme);
-        
-        $address = (new Address())
-            ->setStreetName('Prince Sultan Street')
+        // --- Additional Document References ---
+        $additionalDocs = [];
+
+        // icv = Invoice counter value
+        $additionalDocs[] = (new AdditionalDocumentReference())
+            ->setId('ICV')
+            ->setUUID("10"); //Invoice counter value
+
+        // pih = Previous Invoice Hash
+        $additionalDocs[] = (new AdditionalDocumentReference())
+            ->setId('PIH')
+            ->setAttachment($attachment); // Previous Invoice Hash
+
+        // qr = QR Code Default
+        $additionalDocs[] = (new AdditionalDocumentReference())
+            ->setId('QR');
+
+        // --- Tax Scheme & Party Tax Schemes ---
+        $taxScheme = (new TaxScheme())
+            ->setId("VAT");
+
+        // --- Legal Entity Company ---
+        $legalEntityCompany = (new LegalEntity())
+            ->setRegistrationName('Maximum Speed Tech Supply');
+
+        // --- Party Tax Scheme Company ---
+        $partyTaxSchemeCompany = (new PartyTaxScheme())
+            ->setTaxScheme($taxScheme)
+            ->setCompanyId('399999999900003');
+
+        // --- Address Company ---
+        $addressCompany = (new Address())
+            ->setStreetName('Prince Sultan')
             ->setBuildingNumber("2322")
-            ->setPlotIdentification("2223")
-            ->setCitySubdivisionName('Riyadh')
+            ->setCitySubdivisionName('Al-Murabba')
             ->setCityName('Riyadh')
             ->setPostalZone('23333')
             ->setCountry('SA');
-        
-        // --- Delivery ---
-        $delivery = (new Delivery())->setActualDeliveryDate(date('Y-m-d'));
-        
-        // --- Additional Document References ---
-        $additionalDocs = [];
-        $additionalDocs[] = (new AdditionalDocumentReference())
-            ->setId('ICV')
-            ->setUUID("23"); //Invoice counter value
-        $additionalDocs[] = (new AdditionalDocumentReference())
-            ->setId('PIH')
-            ->setAttachment($pihAttachment); // Previous Invoice Hash
-            // ->setPreviousInvoiceHash('NWZlY2ViNjZmZmM4NmYzOGQ5NTI3ODZjNmQ2OTZjNzljMmRiYzIzOWRkNGU5MWI0NjcyOWQ3M2EyN2ZiNTdlOQ=='); // Previous Invoice Hash
-        $additionalDocs[] = (new AdditionalDocumentReference())
-            ->setId('QR');
-        
-        $legalEntity = (new LegalEntity())->setRegistrationName('مؤسسة وقت الاستجابة');
-        
+
+        // --- Supplier Company ---
         $supplierCompany = (new Party())
-            ->setPartyIdentification("311111111111113")
+            ->setPartyIdentification("1010010000")
             ->setPartyIdentificationId("CRN")
-            ->setLegalEntity($legalEntity)
-            ->setPartyTaxScheme($partyTaxSchemeSupplier)
-            ->setPostalAddress($address);
-        
+            ->setLegalEntity($legalEntityCompany)
+            ->setPartyTaxScheme($partyTaxSchemeCompany)
+            ->setPostalAddress($addressCompany);
+
+
+        // --- Legal Entity Customer ---
+        $legalEntityCustomer = (new LegalEntity())
+            ->setRegistrationName('Fatoora Samples');
+
+        // --- Party Tax Scheme Customer ---
+        $partyTaxSchemeCustomer = (new PartyTaxScheme())
+            ->setTaxScheme($taxScheme)
+            ->setCompanyId('399999999800003');
+
+        // --- Address Customer ---
+        $addressCustomer = (new Address())
+            ->setStreetName('Salah Al-Din')
+            ->setBuildingNumber("1111")
+            ->setCitySubdivisionName('Al-Murooj')
+            ->setCityName('Riyadh')
+            ->setPostalZone('12222')
+            ->setCountry('SA');
+
+        // --- Supplier Customer ---
         $supplierCustomer = (new Party())
-            ->setPartyIdentification("311111111111113")
-            ->setPartyIdentificationId("NAT")
-            ->setLegalEntity($legalEntity)
+            ->setLegalEntity($legalEntityCustomer)
             ->setPartyTaxScheme($partyTaxSchemeCustomer)
-            ->setPostalAddress($address);
-        
-        // --- Invoice Items & Pricing ---
-        $classifiedTax = (new ClassifiedTaxCategory())->setPercent(15)->setTaxScheme($taxScheme);
-        $productItem = (new Item())->setName('Pencil')->setClassifiedTaxCategory($classifiedTax);
-        $price = (new Price())->setUnitCode(UnitCode::UNIT)->setPriceAmount(2);
-        
-        $lineTaxTotal = (new TaxTotal())->setTaxAmount(0.60)->setRoundingAmount(4.60);
-        
+            ->setPostalAddress($addressCustomer);
+
+        // --- Payment Means ---
+        $paymentMeans = (new PaymentMeans())
+            ->setPaymentMeansCode("10");
+
+
+        // --- array of Tax Category Discount ---
+        $taxCategoryDiscount = [];
+
+        // --- Tax Category Discount ---
+        $taxCategoryDiscount[] = (new TaxCategory())
+            ->setPercent(15)
+            ->setTaxScheme($taxScheme);
+
+        // --- Allowance Charge (for Invoice Line) ---
+        $allowanceCharges = [];
+        $allowanceCharges[] = (new AllowanceCharge())
+            ->setChargeIndicator(false)
+            ->setAllowanceChargeReason('discount')
+            ->setAmount(0.00)
+            ->setTaxCategory($taxCategoryDiscount);// Tax Category Discount
+
+        // --- Tax Category ---
+        $taxCategorySubTotal = (new TaxCategory())
+            ->setPercent(15)
+            ->setTaxScheme($taxScheme);
+
+        // --- Tax Sub Total ---
+        $taxSubTotal = (new TaxSubTotal())
+            ->setTaxableAmount(4)
+            ->setTaxAmount(0.6)
+            ->setTaxCategory($taxCategorySubTotal);
+
+        // --- Tax Total ---
+        $taxTotal = (new TaxTotal())
+            ->addTaxSubTotal($taxSubTotal)
+            ->setTaxAmount(0.6);
+
+        // --- Legal Monetary Total ---
+        $legalMonetaryTotal = (new LegalMonetaryTotal())
+            ->setLineExtensionAmount(4)// Total amount of the invoice
+            ->setTaxExclusiveAmount(4) // Total amount without tax
+            ->setTaxInclusiveAmount(4.60) // Total amount with tax
+            ->setPrepaidAmount(0) // Prepaid amount
+            ->setPayableAmount(4.60) // Amount to be paid
+            ->setAllowanceTotalAmount(0); // Total amount of allowances
+
+        // --- Classified Tax Category ---
+        $classifiedTax = (new ClassifiedTaxCategory())
+            ->setPercent(15)
+            ->setTaxScheme($taxScheme);
+
+        // --- Item (Product) ---
+        $productItem = (new Item())
+            ->setName('Product') // Product name
+            ->setClassifiedTaxCategory($classifiedTax); // Classified tax category
+
+        // --- Allowance Charge (for Price) ---
+        $allowanceChargesPrice = [];
+        $allowanceChargesPrice[] = (new AllowanceCharge())
+            ->setChargeIndicator(true)
+            ->setAllowanceChargeReason('discount')
+            ->setAmount(0.00);
+
+        // --- Price ---
+        $price = (new Price())
+            ->setUnitCode(UnitCode::UNIT)
+            ->setAllowanceCharges($allowanceChargesPrice)
+            ->setPriceAmount(2);
+
+        // --- Invoice Line Tax Total ---
+        $lineTaxTotal = (new TaxTotal())
+            ->setTaxAmount(0.60)
+            ->setRoundingAmount(4.60);
+
+        // --- Invoice Line(s) ---
         $invoiceLine = (new InvoiceLine())
             ->setUnitCode("PCE")
             ->setId(1)
@@ -203,90 +347,69 @@ class TestController extends Controller
             ->setPrice($price)
             ->setTaxTotal($lineTaxTotal)
             ->setInvoicedQuantity(2);
-        
         $invoiceLines = [$invoiceLine];
-        
-        // --- Tax Totals ---
-        $taxCategory = (new TaxCategory)
-            ->setPercent(15)
-            ->setTaxScheme($taxScheme);
-        $taxSubTotal = (new TaxSubTotal)
-            ->setTaxableAmount(4)
-            ->setTaxAmount(0.6)
-            ->setTaxCategory($taxCategory);
-        $taxTotal = (new TaxTotal)
-            ->addTaxSubTotal($taxSubTotal)
-            ->setTaxAmount(0.6);
-        
-        // // --- Legal Monetary Total ---
-        $legalMonetaryTotal = (new LegalMonetaryTotal())
-            ->setLineExtensionAmount(4)
-            ->setTaxExclusiveAmount(4)
-            ->setTaxInclusiveAmount(4.60)
-            ->setPrepaidAmount(0)
-            ->setPayableAmount(4.60)
-            ->setAllowanceTotalAmount(0);
-        
-        // --- Build the Invoice ---
+
+
+        // Invoice
         $invoice = (new Invoice())
+            ->setUBLExtensions($ublExtensions)
             ->setUUID('3cf5ee18-ee25-44ea-a444-2c37ba7f28be')
             ->setId('SME00023')
-            ->setIssueDate(new DateTime())
-            ->setIssueTime(new DateTime())
+            ->setIssueDate(new DateTime('2024-09-07 17:41:08'))
+            ->setIssueTime(new DateTime('2024-09-07 17:41:08'))
             ->setInvoiceType($invoiceType)
-            ->setInvoiceCurrencyCode('SAR')
-            ->setTaxCurrencyCode('SAR')
-            ->setDelivery($delivery)
-            ->setAccountingSupplierParty($supplierCompany)
-            ->setAccountingCustomerParty($supplierCustomer)
-            ->setAdditionalDocumentReferences($additionalDocs)
-            ->setTaxTotal($taxTotal)
-            ->setLegalMonetaryTotal($legalMonetaryTotal)
-            ->setInvoiceLines($invoiceLines);
-            // ......
-        // --- Generate XML ---
+            ->setNote('ABC')->setlanguageID('ar')
+            ->setInvoiceCurrencyCode('SAR') // Currency code (ISO 4217)
+            ->setTaxCurrencyCode('SAR') // Tax currency code (ISO 4217)
+            ->setAdditionalDocumentReferences($additionalDocs) // Additional document references
+            ->setAccountingSupplierParty($supplierCompany)// Supplier company
+            ->setAccountingCustomerParty($supplierCustomer) // Customer company
+            ->setPaymentMeans($paymentMeans)// Payment means
+            ->setAllowanceCharges($allowanceCharges)// Allowance charges
+            ->setTaxTotal($taxTotal)// Tax total
+            ->setLegalMonetaryTotal($legalMonetaryTotal)// Legal monetary total
+            ->setInvoiceLines($invoiceLines)// Invoice lines
+            ->setSignature($signature);
+
+
         try {
-            $generatorXml = GeneratorInvoice::invoice($invoice);
-            $outputXML = $generatorXml->getXML();
-            
-            // Save the XML to a file
-            $filePath = StorageFacade::path('unsigned_invoice.xml');
-            (new Storage)->put($filePath, $outputXML);
-            
-            echo "Invoice XML saved to: " . $filePath . "\n";
-        
+            // Generate the XML (default currency 'SAR')
+            // Save the XML to an output file
+            $toXml = GeneratorInvoice::invoice($invoice);
+            (new Storage)->put(StorageFacade::path('unsigned_invoice.xml'), $toXml->getXML());
         } catch (\Exception $e) {
+            // Log error message and exit
             echo "An error occurred: " . $e->getMessage() . "\n";
             exit(1);
         }
     }
 
     public function getInvoiceSigned()
-    {   
+    {
         // Load the unsigned invoice XML
         $xmlInvoice = (new Storage)->get(StorageFacade::path('unsigned_invoice.xml'));
-        
+
         // Load the compliance certificate data from the JSON file
         $json_certificate = (new Storage)->get(StorageFacade::path('ZATCA_certificate_data.json'));
-        
+
         // Decode the JSON data
         $json_data = json_decode($json_certificate, true, 512, JSON_THROW_ON_ERROR);
-        
+
         // Extract certificate details
         $certificate = $json_data['certificate'];
         $secret = $json_data['secret'];
-        
+
         // Load the private key
         $privateKey = (new Storage)->get(StorageFacade::path('private.pem'));
         $cleanPrivateKey = trim(str_replace(["-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----"], "", $privateKey));
-        
+
         // Create a Certificate instance
         $certificate = new Certificate(
             $certificate,
             $cleanPrivateKey,
             $secret
         );
-        
+
         // Sign the invoice
         $signedInvoice = InvoiceSigner::signInvoice($xmlInvoice, $certificate);
         $hash = $signedInvoice->getHash();
@@ -307,7 +430,7 @@ class TestController extends Controller
         $secret = $json_data['secret'];
         $invoiceHash = (new Storage)->get(StorageFacade::path('hash.txt'));
         $uuid = '3cf5ee18-ee25-44ea-a444-2c37ba7f28be';
-        $zatcaClient = new ZatcaAPI('sandbox');     
+        $zatcaClient = new ZatcaAPI('sandbox');
         $complianceResult = $zatcaClient->validateInvoiceCompliance(
             $certificate,
             $secret,

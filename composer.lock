@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "edc476048cbda92f61904bd1df22a004",
+    "content-hash": "d76e0acb025d85a5d88846c56e3c58ba",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -188,149 +188,6 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
-        },
-        {
-            "name": "chillerlan/php-qrcode",
-            "version": "4.4.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/chillerlan/php-qrcode.git",
-                "reference": "345ed8e4ffb56e6b3fcd9f42e3970b9026fa6ce4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/chillerlan/php-qrcode/zipball/345ed8e4ffb56e6b3fcd9f42e3970b9026fa6ce4",
-                "reference": "345ed8e4ffb56e6b3fcd9f42e3970b9026fa6ce4",
-                "shasum": ""
-            },
-            "require": {
-                "chillerlan/php-settings-container": "^2.1.6 || ^3.2.1",
-                "ext-mbstring": "*",
-                "php": "^7.4 || ^8.0"
-            },
-            "require-dev": {
-                "phan/phan": "^5.4.5",
-                "phpmd/phpmd": "^2.15",
-                "phpunit/phpunit": "^9.6",
-                "setasign/fpdf": "^1.8.2",
-                "squizlabs/php_codesniffer": "^3.11"
-            },
-            "suggest": {
-                "chillerlan/php-authenticator": "Yet another Google authenticator! Also creates URIs for mobile apps.",
-                "setasign/fpdf": "Required to use the QR FPDF output.",
-                "simple-icons/simple-icons": "SVG icons that you can use to embed as logos in the QR Code"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "chillerlan\\QRCode\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kazuhiko Arase",
-                    "homepage": "https://github.com/kazuhikoarase"
-                },
-                {
-                    "name": "Smiley",
-                    "email": "smiley@chillerlan.net",
-                    "homepage": "https://github.com/codemasher"
-                },
-                {
-                    "name": "Contributors",
-                    "homepage": "https://github.com/chillerlan/php-qrcode/graphs/contributors"
-                }
-            ],
-            "description": "A QR code generator with a user friendly API. PHP 7.4+",
-            "homepage": "https://github.com/chillerlan/php-qrcode",
-            "keywords": [
-                "phpqrcode",
-                "qr",
-                "qr code",
-                "qrcode",
-                "qrcode-generator"
-            ],
-            "support": {
-                "issues": "https://github.com/chillerlan/php-qrcode/issues",
-                "source": "https://github.com/chillerlan/php-qrcode/tree/4.4.2"
-            },
-            "funding": [
-                {
-                    "url": "https://ko-fi.com/codemasher",
-                    "type": "ko_fi"
-                }
-            ],
-            "time": "2024-11-15T15:36:24+00:00"
-        },
-        {
-            "name": "chillerlan/php-settings-container",
-            "version": "3.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/chillerlan/php-settings-container.git",
-                "reference": "95ed3e9676a1d47cab2e3174d19b43f5dbf52681"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/chillerlan/php-settings-container/zipball/95ed3e9676a1d47cab2e3174d19b43f5dbf52681",
-                "reference": "95ed3e9676a1d47cab2e3174d19b43f5dbf52681",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "phpmd/phpmd": "^2.15",
-                "phpstan/phpstan": "^1.11",
-                "phpstan/phpstan-deprecation-rules": "^1.2",
-                "phpunit/phpunit": "^10.5",
-                "squizlabs/php_codesniffer": "^3.10"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "chillerlan\\Settings\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Smiley",
-                    "email": "smiley@chillerlan.net",
-                    "homepage": "https://github.com/codemasher"
-                }
-            ],
-            "description": "A container class for immutable settings objects. Not a DI container.",
-            "homepage": "https://github.com/chillerlan/php-settings-container",
-            "keywords": [
-                "Settings",
-                "configuration",
-                "container",
-                "helper"
-            ],
-            "support": {
-                "issues": "https://github.com/chillerlan/php-settings-container/issues",
-                "source": "https://github.com/chillerlan/php-settings-container"
-            },
-            "funding": [
-                {
-                    "url": "https://www.paypal.com/donate?hosted_button_id=WLYUNAT9ZTJZ4",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://ko-fi.com/codemasher",
-                    "type": "ko_fi"
-                }
-            ],
-            "time": "2024-07-16T11:13:48+00:00"
         },
         {
             "name": "dasprid/enum",
@@ -1300,56 +1157,6 @@
                 }
             ],
             "time": "2025-02-03T10:55:03+00:00"
-        },
-        {
-            "name": "josemmo/uxml",
-            "version": "v0.1.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/josemmo/uxml.git",
-                "reference": "bcd7d8e410285c642116294e01581374d6be696f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/josemmo/uxml/zipball/bcd7d8e410285c642116294e01581374d6be696f",
-                "reference": "bcd7d8e410285c642116294e01581374d6be696f",
-                "shasum": ""
-            },
-            "require": {
-                "lib-libxml": "*",
-                "php": ">=7.1"
-            },
-            "require-dev": {
-                "phan/phan": "*",
-                "symfony/phpunit-bridge": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "UXML\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "José Miguel Moreno",
-                    "email": "josemmo@pm.me",
-                    "homepage": "https://github.com/josemmo"
-                }
-            ],
-            "description": "Uncomplicated XML manipulation library with a clean and concise syntax",
-            "homepage": "https://github.com/josemmo/uxml",
-            "keywords": [
-                "xml"
-            ],
-            "support": {
-                "issues": "https://github.com/josemmo/uxml/issues",
-                "source": "https://github.com/josemmo/uxml/tree/v0.1.4"
-            },
-            "time": "2022-05-28T16:43:25+00:00"
         },
         {
             "name": "laravel/framework",
@@ -3811,48 +3618,6 @@
             "time": "2024-04-27T21:32:50+00:00"
         },
         {
-            "name": "robrichards/xmlseclibs",
-            "version": "3.1.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/robrichards/xmlseclibs.git",
-                "reference": "2bdfd742624d739dfadbd415f00181b4a77aaf07"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/robrichards/xmlseclibs/zipball/2bdfd742624d739dfadbd415f00181b4a77aaf07",
-                "reference": "2bdfd742624d739dfadbd415f00181b4a77aaf07",
-                "shasum": ""
-            },
-            "require": {
-                "ext-openssl": "*",
-                "php": ">= 5.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "RobRichards\\XMLSecLibs\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "A PHP library for XML Security",
-            "homepage": "https://github.com/robrichards/xmlseclibs",
-            "keywords": [
-                "security",
-                "signature",
-                "xml",
-                "xmldsig"
-            ],
-            "support": {
-                "issues": "https://github.com/robrichards/xmlseclibs/issues",
-                "source": "https://github.com/robrichards/xmlseclibs/tree/3.1.3"
-            },
-            "time": "2024-11-20T21:13:56+00:00"
-        },
-        {
             "name": "sabre/uri",
             "version": "3.0.2",
             "source": {
@@ -3980,135 +3745,6 @@
                 "source": "https://github.com/fruux/sabre-xml"
             },
             "time": "2024-09-06T08:00:55+00:00"
-        },
-        {
-            "name": "saleh7/php-zatca-xml",
-            "version": "v2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Saleh7/php-zatca-xml.git",
-                "reference": "adca724a33c50822beac0d5a720e2e6008c4239f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Saleh7/php-zatca-xml/zipball/adca724a33c50822beac0d5a720e2e6008c4239f",
-                "reference": "adca724a33c50822beac0d5a720e2e6008c4239f",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "ext-hash": "*",
-                "ext-libxml": "*",
-                "ext-mbstring": "*",
-                "ext-openssl": "*",
-                "guzzlehttp/guzzle": "^7.9",
-                "php": ">=8.1",
-                "phpseclib/phpseclib": "^3.0",
-                "sabre/xml": "^4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Saleh7\\Zatca\\": [
-                        "src"
-                    ],
-                    "Saleh7\\Zatca\\Tests\\": [
-                        "tests"
-                    ]
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Saleh7",
-                    "email": "Saleh7@protonmail.ch",
-                    "homepage": "https://github.com/Saleh7"
-                }
-            ],
-            "description": "An unofficial PHP library for generating ZATCA Fatoora e-invoices. This library facilitates the creation of compliant e-invoices, QR Codes, and certificates, as well as the submission of e-invoices to ZATCA's servers. It provides developers with an easy-to-use, customizable, and robust toolkit to integrate and automate ZATCA e-invoicing processes in PHP applications.",
-            "homepage": "https://github.com/Saleh7/php-zatca-xml",
-            "keywords": [
-                "E-Invoice",
-                "ZATCA",
-                "digital invoice",
-                "electronic invoice",
-                "fatoora",
-                "invoice",
-                "qr-code",
-                "ubl invoice",
-                "ublinvoice",
-                "xml",
-                "xml invoice",
-                "zatca-xml"
-            ],
-            "support": {
-                "issues": "https://github.com/Saleh7/php-zatca-xml/issues",
-                "source": "https://github.com/Saleh7/php-zatca-xml"
-            },
-            "time": "2025-02-19T15:05:57+00:00"
-        },
-        {
-            "name": "salla/zatca",
-            "version": "3.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/SallaApp/ZATCA.git",
-                "reference": "0f125ab06f31b4e78c43c312ce0d9f625f9ad49c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/SallaApp/ZATCA/zipball/0f125ab06f31b4e78c43c312ce0d9f625f9ad49c",
-                "reference": "0f125ab06f31b4e78c43c312ce0d9f625f9ad49c",
-                "shasum": ""
-            },
-            "require": {
-                "chillerlan/php-qrcode": "^4.3",
-                "ext-dom": "*",
-                "ext-mbstring": "*",
-                "josemmo/uxml": "^0.1.4",
-                "php": ">=8.0",
-                "phpseclib/phpseclib": "~3.0",
-                "robrichards/xmlseclibs": "^3.1"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~8.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Salla\\ZATCA\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Salla Team",
-                    "email": "support@salla.dev",
-                    "homepage": "https://salla.dev"
-                }
-            ],
-            "description": "A helper to generate the QR code and signed it for ZATCA e-invoicing",
-            "homepage": "https://github.com/salla/zatca",
-            "keywords": [
-                "ZATCA",
-                "e-invocing",
-                "qr-code",
-                "salla"
-            ],
-            "support": {
-                "issues": "https://github.com/salla/zatca/issues",
-                "source": "https://github.com/salla/zatca"
-            },
-            "time": "2024-10-08T14:33:21+00:00"
         },
         {
             "name": "simplesoftwareio/simple-qrcode",
@@ -9022,7 +8658,12 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "ext-dom": "*",
+        "ext-hash": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"

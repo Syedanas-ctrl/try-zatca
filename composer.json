@@ -7,11 +7,16 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-dom": "*",
+        "ext-hash": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "phpseclib/phpseclib": "~3.0",
-        "saleh7/php-zatca-xml": "^2.2",
-        "salla/zatca": "^3.0",
+        "phpseclib/phpseclib": "^3.0",
+        "sabre/xml": "^4.0",
         "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {
