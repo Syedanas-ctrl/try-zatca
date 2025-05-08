@@ -438,5 +438,81 @@ class TestController extends Controller
             $invoiceHash,
             $uuid
         );
+        dd($complianceResult);
+    }
+
+    public function getProdCSID()
+    {
+        $api = new ZatcaAPI('sandbox');
+        $json_certificate = (new Storage)->get(StorageFacade::path('ZATCA_certificate_data.json'));
+        $json_data = json_decode($json_certificate, true, 512, JSON_THROW_ON_ERROR);
+        $certificate = base64_encode($json_data['certificate']);
+        $secret = $json_data['secret'];
+        $complianceRequestId = $json_data['requestId'];
+
+        $result = $api->requestProductionCertificate($certificate, $secret, $complianceRequestId);
+
+        echo "Compliance Certificate:\n" . $result->getCertificate() . "\n";
+        echo "API Secret: " . $result->getSecret() . "\n";
+        echo "Request ID: " . $result->getRequestId() . "\n";
+
+        // sava file output/ZATCA_certificate_data.json
+        $outputFile = StorageFacade::path('production_certificate.json');
+        $api->saveToJson(
+            $result->getCertificate(),
+            $result->getSecret(),
+            $result->getRequestId(),
+            $outputFile
+        );
+
+        echo "Certificate data saved to {$outputFile}\n";
+    }
+
+    public function renewProdCSID()
+    {
+        $api = new ZatcaAPI('sandbox');
+        $json_certificate = (new Storage)->get(StorageFacade::path('production_certificate.json'));
+        $json_data = json_decode($json_certificate, true, 512, JSON_THROW_ON_ERROR);
+        $certificate = base64_encode($json_data['certificate']);
+        $secret = $json_data['secret'];
+        $csr = (new Storage)->get(StorageFacade::path('certificate.csr'));
+        $otp = '123123';
+        $result = $api->renewProductionCertificate($certificate, $secret, $csr, $otp);
+
+        echo "Compliance Certificate:\n" . $result->getCertificate() . "\n";
+        echo "API Secret: " . $result->getSecret() . "\n";
+        echo "Request ID: " . $result->getRequestId() . "\n";
+
+        // sava file output/ZATCA_certificate_data.json
+        $outputFile = StorageFacade::path('production_certificate.json');
+        $api->saveToJson(
+            $result->getCertificate(),
+            $result->getSecret(),
+            $result->getRequestId(),
+            $outputFile
+        );
+
+        echo "Certificate data saved to {$outputFile}\n";
+    }
+
+    public function report()
+    {
+        $signedXmlInvoice = (new Storage)->get(StorageFacade::path('signed_invoice.xml'));
+        $json_certificate = (new Storage)->get(StorageFacade::path('production_certificate.json'));
+        $json_data = json_decode($json_certificate, true, 512, JSON_THROW_ON_ERROR);
+        $certificate = base64_encode($json_data['certificate']);
+        $secret = $json_data['secret'];
+        $invoiceHash = (new Storage)->get(StorageFacade::path('hash.txt'));
+        $uuid = '3cf5ee18-ee25-44ea-a444-2c37ba7f28be';
+        $zatcaClient = new ZatcaAPI('sandbox');
+        $zatcaClient->setWarningHandling(true);
+        $complianceResult = $zatcaClient->reportSimpleInvoice(
+            $certificate,
+            $secret,
+            $signedXmlInvoice,
+            $invoiceHash,
+            $uuid
+        );
+        dd($complianceResult);
     }
 }

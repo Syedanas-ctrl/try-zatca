@@ -176,6 +176,38 @@ class ZatcaAPI
     }
 
     /**
+     * Renew production certificate using compliance credentials.
+     *
+     * @param string $certificate         The certificate for authentication.
+     * @param string $secret              API secret.
+     * @param string $csr                 CSR content.
+     * @param string $otp                 OTP.
+     * @return ProductionCertificateResult
+     * @throws ZatcaApiException For API communication errors.
+     */
+    public function renewProductionCertificate(
+        string $certificate,
+        string $secret,
+        string $csr,
+        string $otp,
+
+    ): ProductionCertificateResult {
+        $response = $this->sendRequest(
+            'PATCH',
+            '/production/csids',
+            ['Content-Type' => 'application/json', 'OTP' => $otp],
+            ['csr' => base64_encode($csr)],
+            $this->createAuthHeaders($certificate, $secret)
+        );
+
+        return new ProductionCertificateResult(
+            $this->formatCertificate($response['binarySecurityToken'] ?? ''),
+            $response['secret'] ?? '',
+            $response['requestID'] ?? ''
+        );
+    }
+
+    /**
      * Submit invoice for clearance reporting.
      *
      * @param string $certificate  The certificate for authentication.
@@ -196,6 +228,38 @@ class ZatcaAPI
         return $this->sendRequest(
             'POST',
             '/invoices/clearance/single',
+            ['Clearance-Status' => '1', 'Accept-Language' => 'en'],
+            [
+                'invoiceHash' => $invoiceHash,
+                'uuid'        => $egsUuid,
+                'invoice'     => base64_encode($signedInvoice),
+            ],
+            $this->createAuthHeaders($certificate, $secret)
+        );
+    }
+
+    /**
+     * Submit simple invoice for reporting.
+     *
+     * @param string $certificate  The certificate for authentication.
+     * @param string $secret       API secret.
+     * @param string $signedInvoice Signed invoice content.
+     * @param string $invoiceHash  Invoice hash.
+     * @param string $egsUuid      Unique invoice identifier.
+     * @return array API response data.
+     * @throws ZatcaApiException For API communication errors.
+     */
+    public function reportSimpleInvoice(
+        string $certificate,
+        string $secret,
+        string $signedInvoice,
+        string $invoiceHash,
+        string $egsUuid
+    ): array {
+        dd($certificate, $secret, $signedInvoice, $invoiceHash, $egsUuid);
+        return $this->sendRequest(
+            'POST',
+            '/invoices/reporting/single',
             ['Clearance-Status' => '1', 'Accept-Language' => 'en'],
             [
                 'invoiceHash' => $invoiceHash,
@@ -255,7 +319,7 @@ class ZatcaAPI
 
             // استخدام عنوان URL المبني على البيئة الحالية
             $url = $this->getBaseUri() . $endpoint;
-            dd($url, $options);
+
             $response = $this->httpClient->request($method, $url, $options);
             $statusCode = $response->getStatusCode();
 
@@ -269,6 +333,7 @@ class ZatcaAPI
 
             return $this->parseResponse($response);
         } catch (GuzzleException $e) {
+
             throw new ZatcaApiException('HTTP request failed', [
                 'message'  => $e->getMessage(),
                 'endpoint' => $endpoint,
